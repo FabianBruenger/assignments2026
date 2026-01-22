@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::event::{Event, Level};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// User count for top users ranking
