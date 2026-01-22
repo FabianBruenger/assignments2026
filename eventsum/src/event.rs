@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use log::{debug, warn};
 
 /// Log level for events
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -25,23 +26,41 @@ pub struct Event {
 }
 
 impl Event {
-    /// Validates that the event has non-empty required fields
-    pub fn is_valid(&self) -> bool {
-        !self.ts.is_empty() 
-            && !self.user.is_empty() 
-            && !self.action.is_empty()
-    }
-    
     /// Parses a JSON line into an Event
     /// Returns None if parsing fails or validation fails
     pub fn from_json_line(line: &str) -> Option<Self> {
-        let event: Event = serde_json::from_str(line).ok()?;
-        if event.is_valid() {
-            Some(event)
-        } else {
-            None
+        match serde_json::from_str(line) {
+            Ok(event) => Some(event),
+            Err(e) => {
+                debug!("Failed to parse JSON: {}", e);
+                None
+            }
         }
     }
+
+    /// Validates that the event has non-empty required fields
+    pub fn is_valid(&self) -> bool {
+        let mut valid = true;
+        
+        if self.ts.is_empty() {
+            warn!("Validation failed: ts field is empty");
+            valid = false;
+        }
+        
+        if self.user.is_empty() {
+            warn!("Validation failed: user field is empty");
+            valid = false;
+        }
+        
+        if self.action.is_empty() {
+            warn!("Validation failed: action field is empty");
+            valid = false;
+        }
+        
+        valid
+    }
+    
+    
 }
 
 #[cfg(test)]
