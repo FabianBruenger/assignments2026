@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use log::{debug, warn};
+use log::{debug, warn, error};
 
 /// Log level for events
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ impl Event {
         match serde_json::from_str(line) {
             Ok(event) => Some(event),
             Err(e) => {
-                debug!("Failed to parse JSON: {}", e);
+                error!("Failed to parse JSON: {}", e);
                 None
             }
         }
