@@ -33,7 +33,6 @@ fn main() {
     // Handle errors (exit code 2 for input read failures)
     if let Err(e) = result {
         error!("Error reading input: {}", e);
-        eprintln!("Error reading input: {}", e);
         process::exit(2);
     }
 

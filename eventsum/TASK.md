@@ -56,8 +56,8 @@ Example: if n = 1, rank = 1, so p95 = d[0].
 
 
 ## CLI Requirements
-eventsum --input path/to/file.json
-cat file.jsonl | eventsum
+eventsum --input path/to/file.jsonl
+TODO: cat file.jsonl | eventsum
 Optional: --pretty to pretty-print the output JSON (indentation).
 
 Exit code:
