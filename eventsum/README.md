@@ -24,3 +24,9 @@ Run unit tests with:
 ```
 cargo test
 ```
+
+## List of TODOs
+
+- [ ] Create 1 e2e test for actually running against the local test file (instead of building and running manually)
+- [ ] Some functions need Result to be productive usable. E.g process_line, finalize
+- [ ] Take another good look at the processing and possible overflows. Test edge cases
