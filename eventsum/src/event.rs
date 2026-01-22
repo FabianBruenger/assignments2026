@@ -89,7 +89,9 @@ mod tests {
     fn test_empty_user() {
         let json = r#"{"ts":"2026-01-19T12:00:01Z","level":"INFO","user":"","action":"run_script","duration_ms":120}"#;
         let event = Event::from_json_line(json);
-        assert!(event.is_none());
+        assert!(event.is_some());
+        let event = event.unwrap();
+        assert!(!event.is_valid()); // Validation should fail
     }
 
     #[test]

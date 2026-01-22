@@ -13,7 +13,11 @@ Build for your local target architecture.
 cargo build --release
 # Run
 ./target/release/eventsum --help
-./target/release/eventsum --input test.json
+./target/release/eventsum --input test.jsonl 
+./target/release/eventsum --input test.jsonl --pretty
+RUST_LOG=debug ./target/release/eventsum --input test.jsonl --pretty
+
+cat mock_data/test.jsonl | RUST_LOG=debug ./target/release/eventsum --pretty
 ```
 
 ## Test
