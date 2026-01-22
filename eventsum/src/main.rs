@@ -8,6 +8,8 @@ mod event;
 mod cli;
 mod result;
 
+// TODO; when reading from std in, need reset at some point. Otherwise overflow
+
 fn main() {
     // Initialize logger (set RUST_LOG=debug for detailed output)
     env_logger::init();
@@ -39,3 +41,6 @@ fn main() {
     // For now, exit with success
     process::exit(0);
 }
+
+
+//  TODO: Test Overflow

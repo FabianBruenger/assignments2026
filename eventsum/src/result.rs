@@ -57,51 +57,28 @@ impl SummaryResult {
         }
     }
     
-    /// Computes summary from a list of events
-    pub fn from_events(events: &[Event], total_lines: usize, bad_lines: usize) -> Self {
-        let mut result = SummaryResult::new();
-        result.total_lines = total_lines;
-        result.bad_lines = bad_lines;
-        result.events = events.len();
-        
-        // Count by level
-        for event in events {
-            match event.level {
-                Level::Info => result.by_level.info += 1,
-                Level::Warn => result.by_level.warn += 1,
-                Level::Error => result.by_level.error += 1,
-            }
+    /// Increments the total_lines counter
+    pub fn increment_total_lines(&mut self) {
+        self.total_lines += 1;
+    }
+    
+    /// Increments the bad_lines counter    
+    pub fn increment_bad_lines(&mut self) {
+        self.bad_lines += 1;
+    }
+
+    /// Increments the events counter
+    pub fn increment_events(&mut self) {
+        self.events += 1;
+    }
+
+    /// Updates level counts based on the event's level
+    pub fn update_level_counts(&mut self, level: Level) {
+        match level {
+            Level::Info => self.by_level.info += 1,
+            Level::Warn => self.by_level.warn += 1,
+            Level::Error => self.by_level.error += 1,
         }
-        
-        // Count by user
-        let mut user_counts: HashMap<String, usize> = HashMap::new();
-        for event in events {
-            *user_counts.entry(event.user.clone()).or_insert(0) += 1;
-        }
-        
-        // Get top 3 users (descending by count, then ascending by username)
-        let mut user_vec: Vec<UserCount> = user_counts
-            .into_iter()
-            .map(|(user, count)| UserCount { user, count })
-            .collect();
-        user_vec.sort_by(|a, b| {
-            b.count.cmp(&a.count).then_with(|| a.user.cmp(&b.user))
-        });
-        result.top_users = user_vec.into_iter().take(3).collect();
-        
-        // Calculate p95 duration
-        if !events.is_empty() {
-            let mut durations: Vec<u64> = events.iter().map(|e| e.duration_ms).collect();
-            durations.sort_unstable();
-            let n = durations.len();
-            let rank = ((0.95 * n as f64).ceil() as usize).max(1);
-            result.p95_duration_ms = durations[rank - 1];
-        }
-        
-        // Find outlier (event with max duration)
-        result.outlier = events.iter().max_by_key(|e| e.duration_ms).cloned();
-        
-        result
     }
     
     /// Serializes to JSON string
@@ -114,30 +91,4 @@ impl SummaryResult {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_empty_result() {
-        let result = SummaryResult::from_events(&[], 0, 0);
-        assert_eq!(result.events, 0);
-        assert_eq!(result.p95_duration_ms, 0);
-        assert!(result.outlier.is_none());
-    }
-    
-    #[test]
-    fn test_single_event() {
-        let event = Event {
-            ts: "2026-01-19T12:00:01Z".to_string(),
-            level: Level::Info,
-            user: "alice".to_string(),
-            action: "test".to_string(),
-            duration_ms: 100,
-        };
-        let result = SummaryResult::from_events(&[event], 1, 0);
-        assert_eq!(result.events, 1);
-        assert_eq!(result.p95_duration_ms, 100);
-        assert_eq!(result.by_level.info, 1);
-    }
-}

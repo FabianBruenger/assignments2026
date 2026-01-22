@@ -1,6 +1,6 @@
 use crate::event::Event;
 use crate::result::SummaryResult;
-use log::{debug, info, error};
+use log::{debug, info, error,warn};
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
@@ -30,39 +30,43 @@ impl App {
         let file = File::open(Path::new(path))?;
         let reader = BufReader::new(file);
 
-        let mut line_count = 0;
         for line in reader.lines() {
             let line = line?;
             // Ignore blank lines
             if line.trim().is_empty() {
-                // TODO: add counter
-                debug!("Skipping blank line");
+                warn!("Skipping blank line");
+                self.result.increment_total_lines();
+                self.result.increment_bad_lines();
                 continue;
             }
-            line_count += 1;
-            debug!("Read line {}: {}", line_count, line);
+            debug!("Read line {}: {}", self.result.total_lines, line);
 
             // Now create the event from line. If the line is invalid (JSON invalid) log for now.
             // If event is valid (no empty fields) add to events vector
             match Event::from_json_line(&line) {
                 Some(event) => {
                     if event.is_valid() {
-                        self.events.push(event);
+                        self.events.push(event.clone());
+                        self.result.increment_events();
+                        self.result.update_level_counts(event.level);
                     } else {
                         error!(
                             "Invalid event at line {}: missing required fields",
-                            line_count
+                            self.result.total_lines
                         );
+                        self.result.increment_bad_lines();
                     }
                 }
                 None => {
-                    error!("Failed to parse JSON at line {}", line_count);
+                    error!("Failed to parse JSON at line {}", self.result.total_lines);
+                    self.result.increment_bad_lines();
                     continue;
                 }
             }
+            self.result.increment_total_lines();
         }
 
-        info!("Finished reading {} lines from file", line_count);
+        info!("Finished reading {} lines from file", self.result.total_lines);
         Ok(())
     }
 
