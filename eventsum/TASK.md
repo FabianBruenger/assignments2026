@@ -16,7 +16,7 @@ level (string): one of INFO, WARN, ERROR
 user (string): username (non-empty)
 action (string): name of the action (non-empty)
 duration_ms (integer): duration in milliseconds (>= 0)
-````
+```
 
 Example line:
 

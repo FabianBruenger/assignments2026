@@ -1,8 +1,6 @@
 # Eventsum
 
-Main crates:
-
-* clap for command line: https://crates.io/crates/clap
+Showcase Rust project - Build a small Rust command-line tool that parses a simple event log (JSON Lines) and produces a compact summary report.
 
 ## Run
 
@@ -22,11 +20,13 @@ cat mock_data/test.jsonl | RUST_LOG=debug ./target/release/eventsum --pretty
 
 ## Test
 
-## Notes:
+Run unit tests with:
+```
+cargo test
+```
 
-1. Event struct -> has the specific fields
-2. Result struct -> Holds the field of the results
-3. app -> holds vector of even struct
-4. app -> method 1: read in file line by line and ignore blanks. Fail with 2 if error
-5. app -> method 2: read in from stdin if flag is not set (blanks possible?). Fail with 2 if error
-6. app -> method 3: validate. If bad line, increase counter, if not process
+## List of TODOs
+
+- [ ] Create 1 e2e test for actually running against the local test file (instead of building and running manually)
+- [ ] Some functions need Result to be productive usable. E.g process_line, finalize
+- [ ] Take another good look at the processing and possible overflows. Test edge cases
