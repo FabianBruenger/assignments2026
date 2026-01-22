@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use log::{debug, warn, error};
+use log::{warn, error};
 
 /// Log level for events
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

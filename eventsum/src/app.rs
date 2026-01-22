@@ -1,5 +1,6 @@
 use crate::event::Event;
-use log::{debug, info, warn, error};
+use crate::result::SummaryResult;
+use log::{debug, info, error};
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
@@ -8,7 +9,7 @@ pub struct App {
     // Vector of valid events
     events: Vec<Event>,
     // Placeholder: will hold Result struct later
-    result: String,
+    result: SummaryResult,
 }
 
 impl App {
@@ -16,7 +17,7 @@ impl App {
     pub fn new() -> Self {
         App {
             events: Vec::new(),
-            result: String::new(),
+            result: SummaryResult::new(),
         }
     }
 

@@ -1,6 +1,4 @@
 use clap::Parser;
-use log::{debug, error};
-use std::process;
 
 #[derive(Parser)]
 #[command(name = "eventsum")]

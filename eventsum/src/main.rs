@@ -6,6 +6,7 @@ use std::process;
 mod app;
 mod event;
 mod cli;
+mod result;
 
 fn main() {
     // Initialize logger (set RUST_LOG=debug for detailed output)
