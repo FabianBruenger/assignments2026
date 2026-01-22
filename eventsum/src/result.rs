@@ -115,6 +115,32 @@ impl SummaryResult {
         self.top_users = top_3;
     }
     
+    /// Computes the 95th percentile of durations using the nearest-rank method
+    /// rank = ceil(0.95 * n) (1-based), then p95 = d[rank - 1]
+    /// Returns 0 if no events
+    pub fn compute_p95_duration(&mut self, events: &[Event]) {
+        if events.is_empty() {
+            self.p95_duration_ms = 0;
+            return;
+        }
+        
+        // Extract and sort durations
+        let mut durations: Vec<u64> = events.iter().map(|e| e.duration_ms).collect();
+        durations.sort_unstable();
+        
+        // Calculate rank using nearest-rank method
+        let n = durations.len();
+        let rank = ((0.95 * n as f64).ceil() as usize).max(1);
+        
+        // Get p95 (convert from 1-based to 0-based index)
+        self.p95_duration_ms = durations[rank - 1];
+    }
+    
+    /// Finds the event with the maximum duration (outlier)
+    pub fn compute_outlier(&mut self, events: &[Event]) {
+        self.outlier = events.iter().max_by_key(|e| e.duration_ms).cloned();
+    }
+    
     /// Serializes to JSON string
     pub fn to_json(&self, pretty: bool) -> Result<String, serde_json::Error> {
         if pretty {
@@ -231,6 +257,129 @@ mod tests {
         result.compute_top_users(&user_counts);
         
         assert_eq!(result.top_users.len(), 0);
+    }
+    
+    #[test]
+    fn test_compute_p95_single_event() {
+        let mut result = SummaryResult::new();
+        let events = vec![
+            Event {
+                ts: "2026-01-19T12:00:01Z".to_string(),
+                level: Level::Info,
+                user: "alice".to_string(),
+                action: "test".to_string(),
+                duration_ms: 100,
+            }
+        ];
+        
+        result.compute_p95_duration(&events);
+        
+        // n=1, rank=ceil(0.95*1)=1, p95=d[0]=100
+        assert_eq!(result.p95_duration_ms, 100);
+    }
+    
+    #[test]
+    fn test_compute_p95_multiple_events() {
+        let mut result = SummaryResult::new();
+        let events = vec![
+            Event {
+                ts: "2026-01-19T12:00:01Z".to_string(),
+                level: Level::Info,
+                user: "alice".to_string(),
+                action: "test".to_string(),
+                duration_ms: 120,
+            },
+            Event {
+                ts: "2026-01-19T12:00:02Z".to_string(),
+                level: Level::Warn,
+                user: "bob".to_string(),
+                action: "test".to_string(),
+                duration_ms: 400,
+            },
+            Event {
+                ts: "2026-01-19T12:00:03Z".to_string(),
+                level: Level::Error,
+                user: "alice".to_string(),
+                action: "test".to_string(),
+                duration_ms: 900,
+            },
+            Event {
+                ts: "2026-01-19T12:00:04Z".to_string(),
+                level: Level::Info,
+                user: "carol".to_string(),
+                action: "test".to_string(),
+                duration_ms: 20,
+            },
+            Event {
+                ts: "2026-01-19T12:00:05Z".to_string(),
+                level: Level::Info,
+                user: "alice".to_string(),
+                action: "test".to_string(),
+                duration_ms: 10,
+            },
+        ];
+        
+        result.compute_p95_duration(&events);
+        
+        // Sorted: [10, 20, 120, 400, 900]
+        // n=5, rank=ceil(0.95*5)=ceil(4.75)=5, p95=d[4]=900
+        assert_eq!(result.p95_duration_ms, 900);
+    }
+    
+    #[test]
+    fn test_compute_p95_empty() {
+        let mut result = SummaryResult::new();
+        let events: Vec<Event> = vec![];
+        
+        result.compute_p95_duration(&events);
+        
+        assert_eq!(result.p95_duration_ms, 0);
+    }
+    
+    #[test]
+    fn test_compute_outlier() {
+        let mut result = SummaryResult::new();
+        let events = vec![
+            Event {
+                ts: "2026-01-19T12:00:01Z".to_string(),
+                level: Level::Info,
+                user: "alice".to_string(),
+                action: "test".to_string(),
+                duration_ms: 120,
+            },
+            Event {
+                ts: "2026-01-19T12:00:02Z".to_string(),
+                level: Level::Error,
+                user: "bob".to_string(),
+                action: "slow_task".to_string(),
+                duration_ms: 900,
+            },
+            Event {
+                ts: "2026-01-19T12:00:03Z".to_string(),
+                level: Level::Info,
+                user: "carol".to_string(),
+                action: "test".to_string(),
+                duration_ms: 50,
+            },
+        ];
+        
+        result.compute_outlier(&events);
+        
+        assert!(result.outlier.is_some());
+        let outlier = result.outlier.unwrap();
+        assert_eq!(outlier.duration_ms, 900);
+        assert_eq!(outlier.user, "bob");
+        assert_eq!(outlier.action, "slow_task");
+    }
+    
+    #[test]
+    fn test_compute_outlier_empty() {
+        let mut result = SummaryResult::new();
+        let events: Vec<Event> = vec![];
+        
+        result.compute_outlier(&events);
+        
+        assert!(result.outlier.is_none());
     }
 }
 

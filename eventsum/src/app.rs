@@ -29,6 +29,19 @@ impl App {
     fn increment_user_count(&mut self, user: &str) {
         *self.user_counts.entry(user.to_string()).or_insert(0) += 1;
     }
+    
+    /// Finalizes the result by computing top users, p95, and outlier
+    pub fn finalize(&mut self) {
+        info!("Finalizing results: computing top users, p95, and outlier");
+        self.result.compute_top_users(&self.user_counts);
+        self.result.compute_p95_duration(&self.events);
+        self.result.compute_outlier(&self.events);
+    }
+    
+    /// Returns a reference to the result
+    pub fn get_result(&self) -> &SummaryResult {
+        &self.result
+    }
 
     // TODO: refactor handling logic to 1 private method to avoid code duplication
 
@@ -43,7 +56,7 @@ impl App {
             let line = line?;
             // Ignore blank lines
             if line.trim().is_empty() {
-                warn!("Skipping blank line");
+                warn!("Skipping blank line but counting it");
                 self.result.increment_total_lines();
                 self.result.increment_bad_lines();
                 continue;
@@ -59,6 +72,7 @@ impl App {
                         self.increment_user_count(&event.user);
                         self.result.increment_events();
                         self.result.update_level_counts(event.level);
+                        self.result.increment_total_lines();
 
                     } else {
                         error!(
@@ -66,15 +80,17 @@ impl App {
                             self.result.total_lines
                         );
                         self.result.increment_bad_lines();
+                        self.result.increment_total_lines();
                     }
                 }
                 None => {
                     error!("Failed to parse JSON at line {}", self.result.total_lines);
                     self.result.increment_bad_lines();
+                    self.result.increment_total_lines();
                     continue;
                 }
             }
-            self.result.increment_total_lines();
+            
         }
 
         info!("Finished reading {} lines from file", self.result.total_lines);
@@ -104,3 +120,5 @@ impl App {
         Ok(())
     }
 }
+
+//  TODO: Test Overflow

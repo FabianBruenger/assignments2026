@@ -1,5 +1,5 @@
 use clap::Parser;
-use log::{debug, error};
+use log::{debug, error,info};
 use std::process;
 
 // Internal modules
@@ -36,10 +36,22 @@ fn main() {
         process::exit(2);
     }
 
-    // TODO: Process events and generate output
-    // For now, exit with success
+    // Finalize: compute top users, p95, and outlier
+    app.finalize();
+    
+    // Generate and output JSON
+    match app.get_result().to_json(cli.pretty) {
+        Ok(json) => {
+            info!("{}", json);
+        }
+        Err(e) => {
+            error!("Failed to serialize result to JSON: {}", e);
+            process::exit(1);
+        }
+    }
+    
+    // Exit with success
     process::exit(0);
 }
 
 
-//  TODO: Test Overflow
