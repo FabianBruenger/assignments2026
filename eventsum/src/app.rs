@@ -1,6 +1,7 @@
 use crate::event::Event;
 use crate::result::SummaryResult;
 use log::{debug, info, error,warn};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
@@ -8,6 +9,8 @@ use std::path::Path;
 pub struct App {
     // Vector of valid events
     events: Vec<Event>,
+    // HashMap to track user counts
+    user_counts: HashMap<String, usize>,
     // Placeholder: will hold Result struct later
     result: SummaryResult,
 }
@@ -17,8 +20,14 @@ impl App {
     pub fn new() -> Self {
         App {
             events: Vec::new(),
+            user_counts: HashMap::new(),
             result: SummaryResult::new(),
         }
+    }
+    
+    /// Increments the count for a user
+    fn increment_user_count(&mut self, user: &str) {
+        *self.user_counts.entry(user.to_string()).or_insert(0) += 1;
     }
 
     // TODO: refactor handling logic to 1 private method to avoid code duplication
@@ -47,8 +56,10 @@ impl App {
                 Some(event) => {
                     if event.is_valid() {
                         self.events.push(event.clone());
+                        self.increment_user_count(&event.user);
                         self.result.increment_events();
                         self.result.update_level_counts(event.level);
+
                     } else {
                         error!(
                             "Invalid event at line {}: missing required fields",
