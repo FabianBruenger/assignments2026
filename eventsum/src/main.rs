@@ -4,6 +4,8 @@ use clap::Parser;
 use log::{debug, error};
 use std::process;
 
+mod event;
+
 #[derive(Parser)]
 #[command(name = "eventsum")]
 #[command(about = "Parses event log (JSON Lines) and produces a summary report")]

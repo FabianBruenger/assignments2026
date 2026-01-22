@@ -31,6 +31,7 @@ impl App {
             let line = line?;
             // Ignore blank lines
             if line.trim().is_empty() {
+                // TODO: add counter
                 debug!("Skipping blank line");
                 continue;
             }
