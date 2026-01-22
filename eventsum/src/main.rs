@@ -42,7 +42,7 @@ fn main() {
     // Generate and output JSON
     match app.get_result().to_json(cli.pretty) {
         Ok(json) => {
-            info!("{}", json);
+            info!("Pretty Result:{}", json);
         }
         Err(e) => {
             error!("Failed to serialize result to JSON: {}", e);
