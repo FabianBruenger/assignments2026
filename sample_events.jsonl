@@ -1,0 +1,10 @@
+{"type":"user_login","timestamp":"2026-01-22T07:00:00Z","level":"info","message":"User logged in successfully","user_id":123}
+{"type":"user_login","timestamp":"2026-01-22T07:05:00Z","level":"info","message":"User logged in successfully","user_id":456}
+{"type":"api_call","timestamp":"2026-01-22T07:10:00Z","level":"info","message":"API endpoint called","endpoint":"/api/users"}
+{"type":"error","timestamp":"2026-01-22T07:15:00Z","level":"error","message":"Database connection failed","error_code":"DB_CONN_TIMEOUT"}
+{"type":"api_call","timestamp":"2026-01-22T07:20:00Z","level":"info","message":"API endpoint called","endpoint":"/api/products"}
+{"type":"user_logout","timestamp":"2026-01-22T07:25:00Z","level":"info","message":"User logged out","user_id":123}
+{"type":"error","timestamp":"2026-01-22T07:30:00Z","level":"error","message":"Invalid request parameters","error_code":"INVALID_PARAMS"}
+{"type":"api_call","timestamp":"2026-01-22T07:35:00Z","level":"info","message":"API endpoint called","endpoint":"/api/orders"}
+{"type":"warning","timestamp":"2026-01-22T07:40:00Z","level":"warning","message":"High memory usage detected","memory_percent":85}
+{"type":"user_login","timestamp":"2026-01-22T07:45:00Z","level":"info","message":"User logged in successfully","user_id":789}
