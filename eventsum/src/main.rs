@@ -1,6 +1,7 @@
 mod app;
 
 use clap::Parser;
+use log::{debug, error};
 use std::process;
 
 #[derive(Parser)]
@@ -17,25 +18,33 @@ struct Cli {
 }
 
 fn main() {
+    // Initialize logger (set RUST_LOG=debug for detailed output)
+    env_logger::init();
+    
     let cli = Cli::parse();
     let mut app = app::App::new();
+    
+    debug!("Starting eventsum with pretty={}", cli.pretty);
 
     let result = match cli.input {
-        Some(path) => {
-            // Read from file
-            app.read_from_file(&path)
+        Some(ref path) => {
+            debug!("Reading from file: {}", path);
+            app.read_from_file(path)
         }
         None => {
-            // Read from stdin
+            debug!("Reading from stdin");
             app.read_from_stdin()
         }
     };
 
     // Handle errors (exit code 2 for input read failures)
     if let Err(e) = result {
+        error!("Error reading input: {}", e);
         eprintln!("Error reading input: {}", e);
         process::exit(2);
     }
+    
+    debug!("Successfully read input");
 
     // TODO: Process events and generate output
     // For now, exit with success
