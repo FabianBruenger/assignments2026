@@ -1,0 +1,8 @@
+{"ts":"2026-01-19T12:00:01Z","level":"INFO","user":"alice","action":"run_script","duration_ms":120}
+{"ts":"2026-01-19T12:00:02Z","level":"WARN","user":"bob","action":"upload_data","duration_ms":400}
+not-json
+
+
+{"ts":"2026-01-19T12:00:04Z","level":"ERROR","user":"alice","action":"run_script","duration_ms":900}
+{"ts":"2026-01-19T12:00:05Z","level":"INFO","user":"carol","action":"login","duration_ms":20}
+{"ts":"2026-01-19T12:00:06Z","level":"INFO","user":"alice","action":"logout","duration_ms":10}

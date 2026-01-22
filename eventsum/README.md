@@ -1,6 +1,22 @@
 # Eventsum
 
+Main crates:
+
+* clap for command line: https://crates.io/crates/clap
+
 ## Run
+
+Build for your local target architecture.
+
+```bash
+# Build
+cargo build --release
+# Run
+./target/release/eventsum --help
+./target/release/eventsum --input test.json
+```
+
+## Test
 
 ## Notes:
 
